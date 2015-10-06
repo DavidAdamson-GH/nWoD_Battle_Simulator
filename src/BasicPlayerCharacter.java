@@ -7,6 +7,31 @@
  */
 public class BasicPlayerCharacter implements WoDCharacter {
 	
+	private int current_hp;
+	private int current_willpower;
+	private int current_defense;
+	
+	public BasicPlayerCharacter(){
+		current_hp = getMaxHealth();
+		current_willpower = getMaxWillpower();
+		current_defense = getDefense();
+	}
+	
+	@Override
+	public void setCurrentHealth(int hp) {
+		current_hp = hp;
+	}
+
+	@Override
+	public void setCurrentWillpower(int willpower) {
+		current_willpower = willpower;
+	}
+	
+	@Override
+	public void setCurrentDefense(int defense){
+		current_defense = defense;
+	}
+	
 	@Override
 	public int getIntelligence() {
 		return 1;
@@ -59,7 +84,7 @@ public class BasicPlayerCharacter implements WoDCharacter {
 
 	@Override
 	public int getCurrentHealth() {
-		return getMaxHealth();
+		return current_hp;
 	}
 
 	@Override
@@ -69,7 +94,7 @@ public class BasicPlayerCharacter implements WoDCharacter {
 
 	@Override
 	public int getCurrentWillpower() {
-		return getMaxWillpower();
+		return current_willpower;
 	}
 
 	@Override
@@ -100,6 +125,11 @@ public class BasicPlayerCharacter implements WoDCharacter {
 	@Override
 	public int getDefense() {
 		return Integer.min(getWits(), getDexterity());
+	}
+	
+	@Override
+	public int getCurrentDefense() {
+		return current_defense;
 	}
 
 	@Override

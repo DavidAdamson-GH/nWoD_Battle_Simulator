@@ -16,19 +16,18 @@ public class Game {
 		WoDCharacter enemy = new BasicPlayerCharacter();
 		BattlerAI enemy_ai = new RandomBattler();
 		
-		int player_hp = player.getMaxHealth();
-		int enemy_hp = enemy.getMaxHealth();
-		
 		Scanner scan = new Scanner(System.in);
 		/* The game begins */
 		while(true){
 			/* Each turn, player and enemy HP is displayed */
-			System.out.println("Player HP: " + player_hp);
-			System.out.println("Enemy HP: " + enemy_hp);
+			System.out.println("Player HP: "+player.getCurrentHealth()+"     Willpower: "+player.getCurrentWillpower());
+			System.out.println("Enemy HP: "+enemy.getCurrentHealth()+"     Willpower: "+enemy.getCurrentWillpower());
 			System.out.println();
 			
 			/* Check if any character is dead yet */
-			byte death_code = checkForDeath(player_hp, enemy_hp);
+			byte death_code = checkForDeath(player.getCurrentHealth(), enemy.getCurrentHealth());
+			player.setCurrentDefense(player.getDefense());
+			enemy.setCurrentDefense(enemy.getDefense());
 			switch(death_code){
 			case 1 :
 				System.out.println("The game ends in a draw!");
@@ -44,19 +43,49 @@ public class Game {
 			/* Player goes first. This might change in a future update. */
 			System.out.println("Enter M for melee, or R for ranged");
 			String input;
+			boolean willpower_spent = false;
+			boolean allout_attack = false;
 			do{
 				/* Clean up the input, and only accept M or R */
 				input = scan.nextLine().trim().toUpperCase();
 			}while(!input.equals("M") && !input.equals("R"));
+			if(player.getCurrentWillpower() > 0){
+				System.out.println("Would you like to spend a Willpower point? (Y/N)");
+				String willpower_decision;
+				do{
+					willpower_decision = scan.nextLine().trim().toUpperCase();
+				}while(!willpower_decision.equals("Y") && !willpower_decision.equals("N"));
+				if(willpower_decision.equals("Y")){
+					player.setCurrentWillpower(player.getCurrentWillpower() - 1);
+					willpower_spent = true;
+				}
+			}
 			if(input.equals("M")){
+				System.out.println("Would you like to make an All-Out Attack?");
+				String allout_decision;
+				do{
+					allout_decision = scan.nextLine().trim().toUpperCase();
+				}while(!allout_decision.equals("Y") && !allout_decision.equals("N"));
+				if(allout_decision.equals("Y")){
+					allout_attack = true;
+					player.setCurrentDefense(0);
+				}
 				/* To hit with a melee weapon, you must get at least 1 success with 
 				 * Dexterity + Weaponry - Enemy_Defense 
 				 */
 				int successes = DiceRoller.getSuccesses(player.getDexterity() + player.getWeaponry() - enemy.getDefense());
+				if(willpower_spent){
+					/* Spending Willpower allows for 3 more dice while rolling to hit */
+					successes += DiceRoller.getSuccesses(3);
+				}
 				if(successes > 0){
 					System.out.println("You hit!");
 					/* Damage is determined by making a Strength roll, then adding the default weapon damage */
 					int damage = 1 + DiceRoller.getSuccesses(player.getStrength());
+					if(allout_attack){
+						/* All-Out Attack allows for 2 more dice while rolling to damage */
+						damage += DiceRoller.getSuccesses(2);
+					}
 					/* Enemy's melee armor value is subtracted from damage */
 					int final_damage = damage - enemy.getMeleeArmor();
 					if(final_damage <= (damage * -1)){
@@ -70,7 +99,7 @@ public class Game {
 						final_damage = 1;
 					}
 					System.out.println("You inflicted "+final_damage+" damage!");
-					enemy_hp -= final_damage;
+					enemy.setCurrentHealth(enemy.getCurrentHealth() - final_damage);
 				}else{
 					System.out.println("You missed!");
 				}
@@ -79,6 +108,10 @@ public class Game {
 				 * Dexterity + Firearms 
 				 */
 				int successes = DiceRoller.getSuccesses(player.getDexterity() + player.getFirearms());
+				if(willpower_spent){
+					/* Spending Willpower allows for 3 more dice while rolling to hit */
+					successes += DiceRoller.getSuccesses(3);
+				}
 				if(successes > 0){
 					System.out.println("You hit!");
 					/* Ranged weapons have constant damage values */
@@ -92,20 +125,20 @@ public class Game {
 						final_damage = 1;
 					}
 					System.out.println("You inflicted "+final_damage+" damage!");
-					enemy_hp -= final_damage;
+					enemy.setCurrentHealth(enemy.getCurrentHealth() - final_damage);
 				}else{
 					System.out.println("You missed!");
 				}
 			}
 			
 			/* Check if the enemy is dead - the enemy can't make a move if it's dead! */
-			if(enemy_hp <= 0){
+			if(enemy.getCurrentHealth() <= 0){
 				/* Skip to the next turn, where the game will end */
 				continue;
 			}
 			
 			/* Let the AI decide the enemy's move */
-			String enemy_move = enemy_ai.getDecision(player_hp, enemy_hp);
+			String enemy_move = enemy_ai.getDecision(player.getCurrentHealth(), enemy.getCurrentHealth());
 			
 			if(enemy_move.equals("M")){
 				int successes = DiceRoller.getSuccesses(enemy.getDexterity() + enemy.getWeaponry() - player.getDefense());
@@ -125,7 +158,7 @@ public class Game {
 						final_damage = 1;
 					}
 					System.out.println("The enemy inflicted "+final_damage+" damage!");
-					player_hp -= final_damage;
+					player.setCurrentHealth(player.getCurrentHealth() - final_damage);
 				}else{
 					System.out.println("The enemy missed!");
 				}
@@ -143,7 +176,7 @@ public class Game {
 						final_damage = 1;
 					}
 					System.out.println("The enemy inflicted "+final_damage+" damage!");
-					player_hp -= final_damage;
+					player.setCurrentHealth(player.getCurrentHealth() - final_damage);
 				}else{
 					System.out.println("The enemy missed!");
 				}

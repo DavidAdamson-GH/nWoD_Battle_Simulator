@@ -2,11 +2,16 @@
 /**
  * Interface for a standard World of Darkness Character
  * 
- * @author David
+ * @author David Adamson
  *
  */
 public interface WoDCharacter {
 
+	/* Change HP, Willpower and Defense*/
+	public void setCurrentHealth(int hp);
+	public void setCurrentWillpower(int willpower);
+	public void setCurrentDefense(int defense);
+	
 	/* Mental Attributes */
 	public int getIntelligence();
 	public int getWits();
@@ -41,6 +46,7 @@ public interface WoDCharacter {
 	/* Misc Values */
 	public int getSize();
 	public int getDefense();
+	public int getCurrentDefense();
 	public int getInitiative();
 	public int getMeleeArmor();
 	public int getRangedArmor();
