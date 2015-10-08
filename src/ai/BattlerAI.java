@@ -8,6 +8,6 @@ package ai;
  */
 public interface BattlerAI {
 
-	public String getDecision(int player_hp, int enemy_hp);
+	public String getDecision(int player_hp, int battler_hp, int battler_willpower);
 	
 }
