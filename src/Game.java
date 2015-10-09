@@ -64,13 +64,13 @@ public class Game {
 			/* Reset player's Defense back to full */
 			player.setCurrentDefense(player.getDefense());
 			
-			System.out.println("Enter M for melee, or R for ranged");
+			System.out.println("Enter M for melee, R for ranged, or D to dodge");
 			boolean willpower_spent = false;
 			boolean allout_attack = false;
 			do{
-				/* Clean up the input, and only accept M or R */
+				/* Clean up the input, and only accept M, R or D */
 				input = scan.nextLine().trim().toUpperCase();
-			}while(!input.equals("M") && !input.equals("R"));
+			}while(!input.equals("M") && !input.equals("R") && !input.equals("D"));
 			if(player.getCurrentWillpower() > 0){
 				System.out.println("Would you like to spend a Willpower point? (Y/N)");
 				String willpower_decision;
@@ -97,7 +97,7 @@ public class Game {
 				 * Dexterity + Weaponry - Enemy_Defense 
 				 */
 				
-				int successes = DiceRoller.getSuccesses(player.getDexterity() + player.getWeaponry() - enemy.getDefense(),
+				int successes = DiceRoller.getSuccesses(player.getDexterity() + player.getWeaponry() - enemy.getCurrentDefense(),
 						display_rolls);
 				if(willpower_spent){
 					/* Spending Willpower allows for 3 more dice while rolling to hit */
@@ -156,6 +156,14 @@ public class Game {
 				}else{
 					System.out.println("You missed!");
 				}
+			}else if(input.equals("D")){
+				
+				/* Dodging doubles your Defense until your next turn */
+				
+				player.setCurrentDefense(player.getCurrentDefense() * 2);
+				/* Spending a point of Willpower adds +2 to Defense on top of this */
+				player.setCurrentDefense(player.getCurrentDefense() + 2);
+				System.out.println("You prepare to Dodge, increasing your Defense to " + player.getCurrentDefense());
 			}
 			
 			/* Check if the enemy is dead - the enemy can't make a move if it's dead! */
@@ -171,8 +179,24 @@ public class Game {
 			String enemy_move = enemy_ai.getDecision(player.getCurrentHealth(), enemy.getCurrentHealth(), enemy.getCurrentWillpower());
 			
 			if(enemy_move.contains("M")){
+				
 				/* Melee attack */
-				int successes = DiceRoller.getSuccesses(enemy.getDexterity() + enemy.getWeaponry() - player.getDefense(),
+				
+				/* Give player a chance to spend Willpower to increase Defense */
+				if(player.getCurrentWillpower() > 0){
+					System.out.println("The enemy is about to attempt a melee attack");
+					System.out.println("Would you like to spend a Willpower point to increase your Defense? (Y/N)");
+					String willpower_decision;
+					do{
+						willpower_decision = scan.nextLine().trim().toUpperCase();
+					}while(!willpower_decision.equals("Y") && !willpower_decision.equals("N"));
+					if(willpower_decision.equals("Y")){
+						player.setCurrentWillpower(player.getCurrentWillpower() - 1);
+						player.setCurrentDefense(player.getCurrentDefense() + 2);
+					}
+				}
+				
+				int successes = DiceRoller.getSuccesses(enemy.getDexterity() + enemy.getWeaponry() - player.getCurrentDefense(),
 						display_rolls);
 				if(enemy_move.contains("W") && enemy.getCurrentWillpower() > 0){
 					/* Spending Willpower allows for 3 more dice while rolling to hit */
@@ -214,6 +238,7 @@ public class Game {
 					/* Spending Willpower allows for 3 more dice while rolling to hit */
 					successes += DiceRoller.getSuccesses(3, display_rolls);
 					enemy.setCurrentWillpower(enemy.getCurrentWillpower() - 1);
+					System.out.println("The enemy uses Willpower!");
 				}
 				if(successes > 0){
 					System.out.println("The enemy hit!");

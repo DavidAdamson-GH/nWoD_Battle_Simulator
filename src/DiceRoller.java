@@ -14,6 +14,9 @@ public class DiceRoller {
 	}
 	
 	public static int getSuccesses(int dice, int crit_threshold, boolean display_rolls){
+		if(dice <= 0){
+			return 0;
+		}
 		int[] rolls = new int[dice];
 		int successes = 0;
 		int crits;
