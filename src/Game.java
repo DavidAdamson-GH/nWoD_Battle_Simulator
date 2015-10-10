@@ -134,6 +134,13 @@ public class Game {
 				 * Dexterity + Weaponry - Enemy_Defense 
 				 */
 				
+				/* AI decides whether to spend a point of Willpower to increase Defense */
+				if(enemy_ai.getDefenseBoostDecision(player.getCurrentHealth(),
+						enemy.getCurrentHealth(), 
+						enemy.getCurrentWillpower())){
+					enemy.setCurrentWillpower(enemy.getCurrentWillpower() - 1);
+					enemy.setCurrentDefense(enemy.getCurrentDefense() + 2);
+				}
 				int rolls = player.getDexterity() + player.getWeaponry() 
 						- enemy.getCurrentDefense() + player.getRollModifier() - hit_penalty;
 				if(willpower_spent){
@@ -336,6 +343,15 @@ public class Game {
 				}else{
 					System.out.println("The enemy missed!");
 				}
+			}else if(enemy_move.contains("D")){
+				int dodge_boost = 0;
+				if(enemy_move.contains("W") && enemy.getCurrentWillpower() > 0){
+					enemy.setCurrentWillpower(enemy.getCurrentWillpower() - 1);
+					dodge_boost = 2;
+				}
+				enemy.setCurrentDefense(enemy.getCurrentDefense() * 2);
+				enemy.setCurrentDefense(enemy.getCurrentDefense() + dodge_boost);
+				System.out.println("The enemy prepares to dodge... (Defense increased to "+enemy.getCurrentDefense()+")");
 			}
 		}
 	}

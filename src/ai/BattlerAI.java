@@ -9,5 +9,6 @@ package ai;
 public interface BattlerAI {
 
 	public String getDecision(int player_hp, int battler_hp, int battler_willpower);
+	public boolean getDefenseBoostDecision(int player_hp, int battler_hp, int battler_willpower);
 	
 }

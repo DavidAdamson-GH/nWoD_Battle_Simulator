@@ -57,7 +57,7 @@ public class BasicPlayerCharacter implements WoDCharacter {
 
 	@Override
 	public int getResolve() {
-		return 1;
+		return 2;
 	}
 
 	@Override
@@ -87,7 +87,7 @@ public class BasicPlayerCharacter implements WoDCharacter {
 
 	@Override
 	public int getComposure() {
-		return 1;
+		return 2;
 	}
 
 	@Override
