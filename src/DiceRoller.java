@@ -8,14 +8,20 @@ import java.util.Random;
  */
 public class DiceRoller {
 
-	public static int getSuccesses(int dice, boolean display_rolls){
+	public static int getSuccesses(int dice, boolean display_rolls, String label){
 		/* By default, dice only crit on a 10 */
-		return getSuccesses(dice, 10, display_rolls);
+		return getSuccesses(dice, 10, display_rolls, label);
 	}
 	
-	public static int getSuccesses(int dice, int crit_threshold, boolean display_rolls){
+	public static int getSuccesses(int dice, int crit_threshold, boolean display_rolls, String label){
+		boolean chance_roll = false;
 		if(dice <= 0){
-			return 0;
+			/* 
+			 * If less than 1 die is to be rolled, the roll becomes a Chance Roll, 
+			 * which means only a 10 will count as a success 
+			 */
+			chance_roll = true;
+			dice = 1;
 		}
 		int[] rolls = new int[dice];
 		int successes = 0;
@@ -25,17 +31,20 @@ public class DiceRoller {
 			crits = 0;
 			for(int i = 0; i < rolls.length; i++){
 				rolls[i] = rng.nextInt(10) + 1;
-				if(rolls[i] >= 8) {
+				if(rolls[i] >= 8 && !chance_roll) {
 					/* Anything 8 or higher is a success */
 					successes++;
 					if(rolls[i] >= crit_threshold){
 						/* Check to see if it's a crit */
 						crits++;
 					}
+				}else if(rolls[i] == 10 && chance_roll){
+					/* Chance Roll is a success - but no crit is possible with a Chance Roll */
+					successes++;
 				}
 			}
 			if(display_rolls && rolls.length > 0){
-				System.out.println(rollsToString(rolls));
+				System.out.println("("+label+")" + (chance_roll ? "[chance roll] " : "") + rollsToString(rolls));
 			}
 			/* Re-roll the crits */
 			rolls = new int[crits];

@@ -7,6 +7,10 @@
  */
 public interface WoDCharacter {
 
+	/* Get/Set general modifiers */
+	public int getRollModifier();
+	public void setRollModifier(int new_mod);
+	
 	/* Change HP, Willpower and Defense*/
 	public void setCurrentHealth(int hp);
 	public void setCurrentWillpower(int willpower);

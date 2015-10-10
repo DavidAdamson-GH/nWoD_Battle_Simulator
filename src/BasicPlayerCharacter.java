@@ -11,10 +11,23 @@ public class BasicPlayerCharacter implements WoDCharacter {
 	private int current_willpower;
 	private int current_defense;
 	
+	private int roll_modifier;
+	
 	public BasicPlayerCharacter(){
 		current_hp = getMaxHealth();
 		current_willpower = getMaxWillpower();
 		current_defense = getDefense();
+		roll_modifier = 0;
+	}
+	
+	@Override
+	public int getRollModifier(){
+		return roll_modifier;
+	}
+	
+	@Override
+	public void setRollModifier(int new_mod){
+		roll_modifier = new_mod;
 	}
 	
 	@Override
@@ -54,7 +67,7 @@ public class BasicPlayerCharacter implements WoDCharacter {
 
 	@Override
 	public int getDexterity() {
-		return 2;
+		return 3;
 	}
 
 	@Override
@@ -104,17 +117,17 @@ public class BasicPlayerCharacter implements WoDCharacter {
 
 	@Override
 	public int getBrawl() {
-		return 1;
+		return 3;
 	}
 
 	@Override
 	public int getFirearms() {
-		return 2;
+		return 3;
 	}
 
 	@Override
 	public int getWeaponry() {
-		return 1;
+		return 3;
 	}
 
 	@Override

@@ -11,6 +11,9 @@ import ai.RandomBattler;
  */
 public class Game {
 
+	private static final String PLAYER_LABEL = "PLAYER";
+	private static final String ENEMY_LABEL = "ENEMY";
+	
 	private static boolean display_rolls = false;
 	
 	public static void main(String[] args) {
@@ -93,24 +96,62 @@ public class Game {
 					player.setCurrentDefense(0);
 				}
 				
-				/* To hit with a melee weapon, you must get at least 1 success with 
+				/* The player gets the opportunity to aim for a specific body part */
+				System.out.println("What part of the body will you aim for?");
+				System.out.println("A for any, L for limb, HE for head, HA for hand, E for eye");
+				String target;
+				int bonus_damage = 0;
+				int debuff = 0;
+				int hit_penalty = 0;
+				do{
+					target = scan.nextLine().trim().toUpperCase();
+				}while(!target.equals("A") && !target.equals("L") && !target.equals("HE")
+						&& !target.equals("HA") && !target.equals("E"));
+				switch(target){
+					case "L" :
+						debuff = 1;
+						hit_penalty = 2;
+						break;
+					case "HE" :
+						bonus_damage = 2;
+						debuff = 1;
+						hit_penalty = 4;
+						break;
+					case "HA" :
+						debuff = 2;
+						hit_penalty = 4;
+						break;
+					case "E" :
+						bonus_damage = 2;
+						debuff = 2;
+						hit_penalty = 6;
+						break;
+				}
+				enemy.setRollModifier(enemy.getRollModifier() - debuff);
+				
+				/* 
+				 * To hit with a melee weapon, you must get at least 1 success with 
 				 * Dexterity + Weaponry - Enemy_Defense 
 				 */
 				
-				int successes = DiceRoller.getSuccesses(player.getDexterity() + player.getWeaponry() - enemy.getCurrentDefense(),
-						display_rolls);
+				int rolls = player.getDexterity() + player.getWeaponry() 
+						- enemy.getCurrentDefense() + player.getRollModifier() - hit_penalty;
 				if(willpower_spent){
 					/* Spending Willpower allows for 3 more dice while rolling to hit */
-					successes += DiceRoller.getSuccesses(3, display_rolls);
+					rolls += 3;
 				}
+				int successes = DiceRoller.getSuccesses(rolls, display_rolls, PLAYER_LABEL);
 				if(successes > 0){
 					System.out.println("You hit!");
 					/* Damage is determined by making a Strength roll, then adding the default weapon damage */
-					int damage = 1 + DiceRoller.getSuccesses(player.getStrength(), display_rolls);
+					int damage = 1 + DiceRoller.getSuccesses(player.getStrength() + player.getRollModifier(), 
+							display_rolls, PLAYER_LABEL);
 					if(allout_attack){
 						/* All-Out Attack allows for 2 more dice while rolling to damage */
-						damage += DiceRoller.getSuccesses(2, display_rolls);
+						damage += DiceRoller.getSuccesses(2 + player.getRollModifier(), display_rolls, PLAYER_LABEL);
 					}
+					/* Apply bonus damage from aiming for a specific body part */
+					damage += bonus_damage;
 					/* Enemy's melee armor value is subtracted from damage */
 					int final_damage = damage - enemy.getMeleeArmor();
 					if(final_damage <= (damage * -1)){
@@ -130,19 +171,56 @@ public class Game {
 				}
 			}else if(input.equals("R")){
 				
+				/* The player gets the opportunity to aim for a specific body part */
+				System.out.println("What part of the body will you aim for?");
+				System.out.println("A for any, L for limb, HE for head, HA for hand, E for eye");
+				String target;
+				int bonus_damage = 0;
+				int debuff = 0;
+				int hit_penalty = 0;
+				do{
+					target = scan.nextLine().trim().toUpperCase();
+				}while(!target.equals("A") && !target.equals("L") && !target.equals("HE")
+						&& !target.equals("HA") && !target.equals("E"));
+				switch(target){
+					case "L" :
+						debuff = 1;
+						hit_penalty = 2;
+						break;
+					case "HE" :
+						bonus_damage = 2;
+						debuff = 1;
+						hit_penalty = 4;
+						break;
+					case "HA" :
+						debuff = 2;
+						hit_penalty = 4;
+						break;
+					case "E" :
+						bonus_damage = 2;
+						debuff = 2;
+						hit_penalty = 6;
+						break;
+				}
+				enemy.setRollModifier(enemy.getRollModifier() - debuff);
+				
 				/* To hit with a ranged weapon, you must get at least 1 success with 
 				 * Dexterity + Firearms 
 				 */
 				
-				int successes = DiceRoller.getSuccesses(player.getDexterity() + player.getFirearms(), display_rolls);
+				int rolls = player.getDexterity() + player.getFirearms() 
+						- enemy.getCurrentDefense() + player.getRollModifier() - hit_penalty;
 				if(willpower_spent){
 					/* Spending Willpower allows for 3 more dice while rolling to hit */
-					successes += DiceRoller.getSuccesses(3, display_rolls);
+					rolls += 3;
 				}
+				int successes = DiceRoller.getSuccesses(rolls, display_rolls, PLAYER_LABEL);
 				if(successes > 0){
 					System.out.println("You hit!");
 					/* Ranged weapons have constant damage values */
 					int damage = 2;
+					/* Apply bonus damage from aiming for a specific body part */
+					damage += bonus_damage;
 					/* Enemy's ranged armor value is subtracted from damage */
 					int final_damage = damage - enemy.getRangedArmor();
 					/* Same damage rules apply as for melee attacks */
@@ -196,20 +274,21 @@ public class Game {
 					}
 				}
 				
-				int successes = DiceRoller.getSuccesses(enemy.getDexterity() + enemy.getWeaponry() - player.getCurrentDefense(),
-						display_rolls);
+				int successes = DiceRoller.getSuccesses(enemy.getDexterity() + enemy.getWeaponry() - 
+						player.getCurrentDefense() + enemy.getRollModifier(), display_rolls, ENEMY_LABEL);
 				if(enemy_move.contains("W") && enemy.getCurrentWillpower() > 0){
 					/* Spending Willpower allows for 3 more dice while rolling to hit */
-					successes += DiceRoller.getSuccesses(3, display_rolls);
+					successes += DiceRoller.getSuccesses(3 + enemy.getRollModifier(), display_rolls, ENEMY_LABEL);
 					enemy.setCurrentWillpower(enemy.getCurrentWillpower() - 1);
 					System.out.println("The enemy uses Willpower!");
 				}
 				if(successes > 0){
 					System.out.println("The enemy hit!");
-					int damage = 1 + DiceRoller.getSuccesses(enemy.getStrength(), display_rolls);
+					int damage = 1 + DiceRoller.getSuccesses(enemy.getStrength() + enemy.getRollModifier(), 
+							display_rolls, ENEMY_LABEL);
 					if(enemy_move.contains("A")){
 						/* All-Out Attack allows for 2 more dice while rolling to damage */
-						damage += DiceRoller.getSuccesses(2, display_rolls);
+						damage += DiceRoller.getSuccesses(2 + enemy.getRollModifier(), display_rolls, ENEMY_LABEL);
 						/* Now apply defense penalty */
 						enemy.setCurrentDefense(0);
 						System.out.println("The enemy goes for an all-out attack!");
@@ -233,10 +312,11 @@ public class Game {
 				}
 			}else if(enemy_move.contains("R")){
 				/* Ranged attack */
-				int successes = DiceRoller.getSuccesses(enemy.getDexterity() + enemy.getFirearms(), display_rolls);
+				int successes = DiceRoller.getSuccesses(enemy.getDexterity() + enemy.getFirearms()
+						+ enemy.getRollModifier(), display_rolls, ENEMY_LABEL);
 				if(enemy_move.contains("W") && enemy.getCurrentWillpower() > 0){
 					/* Spending Willpower allows for 3 more dice while rolling to hit */
-					successes += DiceRoller.getSuccesses(3, display_rolls);
+					successes += DiceRoller.getSuccesses(3 + enemy.getRollModifier(), display_rolls, ENEMY_LABEL);
 					enemy.setCurrentWillpower(enemy.getCurrentWillpower() - 1);
 					System.out.println("The enemy uses Willpower!");
 				}
