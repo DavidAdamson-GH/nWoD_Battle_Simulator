@@ -57,5 +57,25 @@ public class RandomBattler implements BattlerAI {
 			return false;
 		}
 	}
+
+	@Override
+	public String getBodyPartDecision(int player_hp, int battler_hp, 
+			int battler_willpower, int battler_dicemod) {
+		Random rng = new Random();
+		int r = rng.nextInt(100);
+		if((r >= 0) && (r < 60)){
+			return "A";
+		}
+		if((r >= 60) && (r < 80)){
+			return "L";
+		}
+		if((r >= 80) && (r < 88)){
+			return "HE";
+		}
+		if((r >= 88) && (r < 96)){
+			return "HA";
+		}
+		return "E";
+	}
 	
 }

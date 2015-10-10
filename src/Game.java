@@ -216,7 +216,7 @@ public class Game {
 				 */
 				
 				int rolls = player.getDexterity() + player.getFirearms() 
-						- enemy.getCurrentDefense() + player.getRollModifier() - hit_penalty;
+						 + player.getRollModifier() - hit_penalty;
 				if(willpower_spent){
 					/* Spending Willpower allows for 3 more dice while rolling to hit */
 					rolls += 3;
@@ -281,14 +281,48 @@ public class Game {
 					}
 				}
 				
-				int successes = DiceRoller.getSuccesses(enemy.getDexterity() + enemy.getWeaponry() - 
-						player.getCurrentDefense() + enemy.getRollModifier(), display_rolls, ENEMY_LABEL);
+				/* AI can aim for specific body part */
+				String target;
+				int bonus_damage = 0;
+				int debuff = 0;
+				int hit_penalty = 0;
+				target = enemy_ai.getBodyPartDecision(player.getCurrentHealth(),
+						enemy.getCurrentHealth(), 
+						enemy.getCurrentWillpower(), 
+						enemy.getRollModifier());
+				switch(target){
+					case "L" :
+						debuff = 1;
+						hit_penalty = 2;
+						break;
+					case "HE" :
+						bonus_damage = 2;
+						debuff = 1;
+						hit_penalty = 4;
+						break;
+					case "HA" :
+						debuff = 2;
+						hit_penalty = 4;
+						break;
+					case "E" :
+						bonus_damage = 2;
+						debuff = 2;
+						hit_penalty = 6;
+						break;
+				}
+				player.setRollModifier(player.getRollModifier() - debuff);
+				
+				/* Now roll to hit */
+				
+				int rolls = enemy.getDexterity() + enemy.getWeaponry() - 
+						player.getCurrentDefense() + enemy.getRollModifier() - hit_penalty;
 				if(enemy_move.contains("W") && enemy.getCurrentWillpower() > 0){
 					/* Spending Willpower allows for 3 more dice while rolling to hit */
-					successes += DiceRoller.getSuccesses(3 + enemy.getRollModifier(), display_rolls, ENEMY_LABEL);
+					rolls += DiceRoller.getSuccesses(3 + enemy.getRollModifier(), display_rolls, ENEMY_LABEL);
 					enemy.setCurrentWillpower(enemy.getCurrentWillpower() - 1);
 					System.out.println("The enemy uses Willpower!");
 				}
+				int successes = DiceRoller.getSuccesses(rolls, display_rolls, ENEMY_LABEL);
 				if(successes > 0){
 					System.out.println("The enemy hit!");
 					int damage = 1 + DiceRoller.getSuccesses(enemy.getStrength() + enemy.getRollModifier(), 
@@ -319,8 +353,53 @@ public class Game {
 				}
 			}else if(enemy_move.contains("R")){
 				/* Ranged attack */
-				int successes = DiceRoller.getSuccesses(enemy.getDexterity() + enemy.getFirearms()
-						+ enemy.getRollModifier(), display_rolls, ENEMY_LABEL);
+				
+				/* AI can aim for specific body part */
+				String target;
+				int bonus_damage = 0;
+				int debuff = 0;
+				int hit_penalty = 0;
+				target = enemy_ai.getBodyPartDecision(player.getCurrentHealth(),
+						enemy.getCurrentHealth(), 
+						enemy.getCurrentWillpower(), 
+						enemy.getRollModifier());
+				switch(target){
+					case "L" :
+						System.out.println("The enemy is aiming for a limb!");
+						debuff = 1;
+						hit_penalty = 2;
+						break;
+					case "HE" :
+						System.out.println("The enemy is aiming for the head!");
+						bonus_damage = 2;
+						debuff = 1;
+						hit_penalty = 4;
+						break;
+					case "HA" :
+						System.out.println("The enemy is aiming for a hand!");
+						debuff = 2;
+						hit_penalty = 4;
+						break;
+					case "E" :
+						System.out.println("The enemy is aiming for an eye!");
+						bonus_damage = 2;
+						debuff = 2;
+						hit_penalty = 6;
+						break;
+				}
+				player.setRollModifier(player.getRollModifier() - debuff);
+				
+				/* Now roll to hit */
+				
+				int rolls = enemy.getDexterity() + enemy.getFirearms() 
+						+ enemy.getRollModifier() - hit_penalty;
+				if(enemy_move.contains("W") && enemy.getCurrentWillpower() > 0){
+					/* Spending Willpower allows for 3 more dice while rolling to hit */
+					rolls += DiceRoller.getSuccesses(3 + enemy.getRollModifier(), display_rolls, ENEMY_LABEL);
+					enemy.setCurrentWillpower(enemy.getCurrentWillpower() - 1);
+					System.out.println("The enemy uses Willpower!");
+				}
+				int successes = DiceRoller.getSuccesses(rolls, display_rolls, ENEMY_LABEL);
 				if(enemy_move.contains("W") && enemy.getCurrentWillpower() > 0){
 					/* Spending Willpower allows for 3 more dice while rolling to hit */
 					successes += DiceRoller.getSuccesses(3 + enemy.getRollModifier(), display_rolls, ENEMY_LABEL);
