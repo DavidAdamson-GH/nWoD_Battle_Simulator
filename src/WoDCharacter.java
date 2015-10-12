@@ -10,6 +10,10 @@ public interface WoDCharacter {
 	/* Get/Set general modifiers */
 	public int getRollModifier();
 	public void setRollModifier(int new_mod);
+	public boolean isGrappled();
+	public void setGrappled(boolean grappled);
+	public boolean isGrappling();
+	public void setGrappling(boolean grappling);
 	
 	/* Change HP, Willpower and Defense*/
 	public void setCurrentHealth(int hp);
@@ -54,5 +58,7 @@ public interface WoDCharacter {
 	public int getInitiative();
 	public int getMeleeArmor();
 	public int getRangedArmor();
+	public int getMeleeWeaponDamage();
+	public int getRangedWeaponDamage();
 	
 }

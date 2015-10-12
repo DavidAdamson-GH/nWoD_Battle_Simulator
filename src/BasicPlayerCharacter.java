@@ -13,6 +13,9 @@ public class BasicPlayerCharacter implements WoDCharacter {
 	
 	private int roll_modifier;
 	
+	private boolean is_grappled = false;
+	private boolean is_grappling = false;
+	
 	public BasicPlayerCharacter(){
 		current_hp = getMaxHealth();
 		current_willpower = getMaxWillpower();
@@ -28,6 +31,32 @@ public class BasicPlayerCharacter implements WoDCharacter {
 	@Override
 	public void setRollModifier(int new_mod){
 		roll_modifier = new_mod;
+	}
+	
+	@Override
+	public boolean isGrappled(){
+		return is_grappled;
+	}
+	
+	@Override
+	public void setGrappled(boolean grappled){
+		if(grappled){
+			is_grappling = false;
+		}
+		is_grappled = grappled;
+	}
+	
+	@Override
+	public boolean isGrappling(){
+		return is_grappling;
+	}
+	
+	@Override
+	public void setGrappling(boolean grappling){
+		if(grappling){
+			is_grappled = false;
+		}
+		is_grappling = grappling;
 	}
 	
 	@Override
@@ -158,6 +187,16 @@ public class BasicPlayerCharacter implements WoDCharacter {
 	@Override
 	public int getRangedArmor() {
 		return 0;
+	}
+
+	@Override
+	public int getMeleeWeaponDamage() {
+		return 2;
+	}
+
+	@Override
+	public int getRangedWeaponDamage() {
+		return 2;
 	}
 
 }

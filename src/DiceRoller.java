@@ -8,13 +8,14 @@ import java.util.Random;
  */
 public class DiceRoller {
 
-	public static int getSuccesses(int dice, boolean display_rolls, String label){
+	public static int getSuccesses(int dice, int roll_modifier, boolean display_rolls, String label){
 		/* By default, dice only crit on a 10 */
-		return getSuccesses(dice, 10, display_rolls, label);
+		return getSuccesses(dice, roll_modifier, 10, display_rolls, label);
 	}
 	
-	public static int getSuccesses(int dice, int crit_threshold, boolean display_rolls, String label){
+	public static int getSuccesses(int dice, int roll_modifier, int crit_threshold, boolean display_rolls, String label){
 		boolean chance_roll = false;
+		dice += roll_modifier;
 		if(dice <= 0){
 			/* 
 			 * If less than 1 die is to be rolled, the roll becomes a Chance Roll, 

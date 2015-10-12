@@ -61,6 +61,7 @@ public class RandomBattler implements BattlerAI {
 	@Override
 	public String getBodyPartDecision(int player_hp, int battler_hp, 
 			int battler_willpower, int battler_dicemod) {
+		
 		Random rng = new Random();
 		int r = rng.nextInt(100);
 		if((r >= 0) && (r < 60)){
@@ -76,6 +77,39 @@ public class RandomBattler implements BattlerAI {
 			return "HA";
 		}
 		return "E";
+	}
+	
+	@Override
+	public String getGrappledDecision(int player_hp, int battler_hp, int battler_willpower){
+		Random rng = new Random();
+		int r = rng.nextInt(2);
+		if(r == 0){
+			r = rng.nextInt(2);
+			if(battler_willpower > 0 && r == 0){
+				return "OVW";
+			}
+			return "OV";
+		}
+		r = rng.nextInt(2);
+		if(battler_willpower > 0 && r == 0){
+			return "EW";
+		}
+		return "E";
+	}
+
+	@Override
+	public String getGrapplingDecision(int player_hp, int battler_hp, int battler_willpower) {
+		/* AI will usually just attack when grappling */
+		Random rng = new Random();
+		int r = rng.nextInt(10);
+		if(r == 0){
+			r = rng.nextInt(2);
+			if(battler_willpower > 0 && r == 0){
+				return "AW";
+			}
+			return "A";
+		}
+		return "X";
 	}
 	
 }
